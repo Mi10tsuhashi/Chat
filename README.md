@@ -1,0 +1,6 @@
+# Chat
+Ajaxを用いたチャットアプリケーションです。アプリケーションコンテナとしてTomcatを、データベースはMySQLをサポートします。現在開発途中です。
+データベースに関する設定はMETA-INF/context.xmlを編集する必要があります。DAOパターンを用いて実装されていて、DAOクラスはdaoパッケージに、DTOクラスは
+dtoパッケージにあります。DAOクラスはcontext.xmlで編集された値をもとにJNDIを用いてコネクションを取得すると、メッセージを表すテーブルを作成し、同じくメッセージを表すDTOクラスとの仲介を
+します。また、このDTOクラスはJsonSerializerとJsonDeserializerを実装しているためGsonを用いてJson⇔DTO間の変換を行うことができます。クライアントサイドJacaScriptではJQueryを用いてAjax通信を
+行い、サーバーから取得したデータをDOMに反映します。
