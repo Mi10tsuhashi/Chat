@@ -24,7 +24,7 @@ public class Message extends HttpServlet {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
-		MessageDAO.init();
+		MessageDAO dao = new MessageDAO(this);
 		MessageDTO dto =new MessageDTO();
 		if(request.getSession()!=null&&request.getSession().getAttribute("LoginUser")!=null) {
         String text =request.getParameter("text");
@@ -34,12 +34,17 @@ public class Message extends HttpServlet {
         dto.setDatetime(LocalDateTime.now());
         dto.setIP(request.getRemoteAddr());
         MessageDAO.insertMessageDTO(dto);
+        if(text.startsWith("/del")&&!text.startsWith("/delall")) {
+        dao.deleteMessage(((UserBean)request.getSession().getAttribute("LoginUser")).getName());
+        }else if (text.startsWith("/delall")){
+        	dao.deleteAllMessage();
+        }
         }
 		}
 		GsonBuilder builder = new GsonBuilder();
 		builder.registerTypeAdapter(MessageDTO.class, dto);
 		Gson gson = builder.create();
-		String json = gson.toJson(MessageDAO.getLatest(30));
+		String json = gson.toJson(dao.getLatest(30));
 		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");
 		response.getWriter().print(json);

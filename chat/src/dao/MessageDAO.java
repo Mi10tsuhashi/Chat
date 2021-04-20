@@ -1,6 +1,7 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,34 +12,48 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
+import javax.servlet.http.HttpServlet;
 
 import dto.MessageDTO;
 
 public class MessageDAO {
 	private static Connection connection;
-    static {
-       init();
-    }
-    public static void init() {
+	private  HttpServlet servlet;
+
+    public   MessageDAO(HttpServlet s) {
     	if(!isValid()) {
+    		servlet=s;
     		connection = getConnection();
     		createTable();
     	}
     }
-    private static Connection getConnection() {
+    private  Connection getConnection() {
     	try {
+    		/* Plane Tomcat
 			Context c =new InitialContext();
 			DataSource source=(DataSource)c.lookup("java:comp/env/jdbc/chat");
 			return source.getConnection();
-		} catch (NamingException e) {
-            return null;
+            */
+
+    		//heroku
+    		String dburl = System.getenv("DATABASE_URL");
+    		String user = dburl.split("//")[1].split(":")[0];
+    		String pass = dburl.split("//")[1].split(":")[1].split("@")[0];
+    		String host = dburl.split("@")[1].split("/")[0];
+    		String db = dburl.split("@")[1].split("/")[1].split("\\?")[0];
+    		String url = "jdbc:mysql://"+host+":"+3306+"/"+db+"?characterEncoding=UTF-8&serverTimezone=JST&reconnect=true";
+    		Class.forName("com.mysql.cj.jdbc.Driver");
+			connection =  DriverManager.getConnection(url, user, pass);
+
 		} catch (SQLException e) {
+             servlet.log(e.getMessage());
+             servlet.log(e.getCause().getMessage());
             return null;
+		} catch (ClassNotFoundException e) {
+			servlet.log(e.getMessage());
+			servlet.log(e.getCause().getMessage());
 		}
+		return connection;
     }
     public static boolean isValid() {
     	try {
@@ -47,7 +62,7 @@ public class MessageDAO {
         throw new IllegalStateException();
 		}
     }
-    public static boolean createTable() {
+    public  boolean createTable() {
        return executeUpdate(i->{
     	   if(i<0) {
     		   //Here is the processing when it fails
@@ -55,9 +70,8 @@ public class MessageDAO {
        },"CREATE TABLE IF NOT EXISTS message (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(15) NOT NULL, text VARCHAR(250),IP VARCHAR(15),datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL);"
     		   ) < 0 ? false:true;
     }
-	public static TreeSet<MessageDTO> getLatest(int limit){
+	public  TreeSet<MessageDTO> getLatest(int limit){
 		ResultSet resultset = null;
-		init();
 		if(isValid()) {
             try(
             PreparedStatement statement = connection.prepareStatement("SELECT * from message order by datetime DESC limit ?");
@@ -109,7 +123,6 @@ public class MessageDAO {
 		return i;
     }
     public static boolean insertMessageDTO(MessageDTO m) {
-    	init();
     	if(isValid()) {
             try(
             PreparedStatement statement = connection.prepareStatement("INSERT INTO message (text,name,datetime,IP) VALUES (?,?,?,?);");
@@ -124,6 +137,29 @@ public class MessageDAO {
             }
        	}
     	return false;
+    }
+    public void deleteMessage(String user) {
+    	if(!isValid()) {
+    		connection = getConnection();
+    	}
+         try(PreparedStatement s = connection.prepareStatement("DELETE from message WHERE name = ?")){
+        	 s.setString(1, user);
+        	 s.executeUpdate();
+         }catch(SQLException e) {
+        	 e.printStackTrace();
+         }
+
+    }
+    public void deleteAllMessage() {
+    	if(!isValid()) {
+    		connection = getConnection();
+    	}
+    	try(Statement s = connection.createStatement();){
+    		s.executeUpdate("DELETE from message;");
+    	} catch (SQLException e) {
+			// TODO 自動生成された catch ブロック
+			e.printStackTrace();
+		}
     }
 	private static TreeSet<MessageDTO> toMessageDTOSet(ResultSet rs) {
 		TreeSet<MessageDTO> result = new TreeSet<MessageDTO>();

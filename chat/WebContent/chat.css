@@ -1,0 +1,79 @@
+*{margin: 0 auto;text-align: center;}
+.error{}
+#input{}
+#enterform{
+	margin-top: 5%;
+	}
+#enterform input{
+	width: 60%;
+}
+#enterform *{
+	margin: 0.5em;
+}
+#chatform{}
+#chatform textarea, #chatform button{
+	width: 80%;
+}
+#messages{
+	width: 75%;
+}
+.note {
+   font-size: small;
+   color: #808080;
+}
+img {
+	width: 2em;
+	height: 2em;
+	position:relative;
+	top: 0.8em;
+	border-radius: 50%;
+	}
+.name {
+	font-size: small;
+}
+.user {
+	width: 3em;
+	float: left;
+}
+.msg {
+	width: 60%;
+	float: left;
+	margin-top: 0.5em;
+	margin-left: 0.5em;
+	background-color: #ddd3a9;
+	border-radius: 0.5em;
+	position: relative;
+	padding: 1em;
+	text-align: left;
+}
+.msg::before {
+	border: solid transparent;
+    content:'';
+    position:absolute;
+    border-top-width:-10px;
+    border-bottom-width:8px;
+    border-left-width:30px;
+    border-right-width:30px;
+    margin-top: -5px;
+	margin-right:-5px;
+    border-right-color:#ddd3a9;
+    right:100%;
+    top:40%;
+	z-index: -1;
+}
+.date{
+	visibility: hidden;
+	position:absolute;
+	background-color: black;
+	color: #fff;
+	border-radius: 0.5em;
+	padding:0.1em 0;
+	font-size: 0.7em;
+	z-index:1
+}
+.user:hover .date{
+	visibility: visible;
+}
+.clear{
+	clear:both;
+}

@@ -14,6 +14,14 @@ import javax.servlet.http.HttpServletResponse;
 import beans.UserBean;
 
 
+
+
+
+
+
+
+
+
 @WebServlet("/index.jsp")
 @WebListener
 public class IndexServlet extends HttpServlet{
@@ -36,7 +44,10 @@ public class IndexServlet extends HttpServlet{
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
         String name = request.getParameter("name");
-        if(name!=null) {
+        String A = "\\u3000";
+    	String B = "\\u00A0";
+    	String C = "\\u0020";
+        if(name!=null&&!name.equals("")&&!name.matches(A+"*"+C+"*"+B+"*"+A+"*"+C+"*"+B+"*"+A+"*")) {
         	UserBean user = new UserBean(name);
         	ServletContext context =request.getServletContext();
         	@SuppressWarnings("unchecked")
@@ -52,6 +63,9 @@ public class IndexServlet extends HttpServlet{
         		request.getSession().setAttribute("ErrorMessage", "すでに入室中のユーザーと被っています。");
         		request.getRequestDispatcher("/top.jsp").forward(request, response);
         	}
+        } else {
+        	request.getSession().setAttribute("ErrorMessage", "不適切な名前です。");
+    		request.getRequestDispatcher("/top.jsp").forward(request, response);
         }
 
 	}

@@ -24,7 +24,7 @@ public class UserBean implements Serializable , HttpSessionBindingListener , Com
        ServletContext servlet =event.getSession().getServletContext();
        UserBean bean = (UserBean)event.getValue();
        @SuppressWarnings("unchecked")
-       //UserSetの値はTreeSet<UserBean>でセットしているため型安全
+       //UserSetの値はSet<String>でセットしているため型安全
 	   TreeSet<UserBean> userset=(TreeSet<UserBean>)servlet.getAttribute("UserSet");
        if(userset!=null&&bean!=null) {
        userset.remove(bean);
