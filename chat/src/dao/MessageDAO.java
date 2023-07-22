@@ -66,7 +66,8 @@ public class MessageDAO {
 		return connection;
     }
 /**
-*
+*データベースとの接続が有効かを検証する関数
+*@return データベースとの接続が有効かどうか
 */
     public static boolean isValid() {
     	try {
@@ -75,6 +76,10 @@ public class MessageDAO {
         throw new IllegalStateException();
 		}
     }
+/**
+*メッセージを表すテーブルがデーターベース上に存在しない場合新たに作成する。
+*@return 作成したかどうか
+*/
     public  boolean createTable() {
        return executeUpdate(i->{
     	   if(i<0) {
@@ -83,6 +88,11 @@ public class MessageDAO {
        },"CREATE TABLE IF NOT EXISTS message (id INTEGER PRIMARY KEY AUTO_INCREMENT, name VARCHAR(15) NOT NULL, text VARCHAR(250),IP VARCHAR(15),datetime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL);"
     		   ) < 0 ? false:true;
     }
+/**
+*引数で受け取った件数分だけmessageテーブルから日付の降順でレコード群を取得し、セットとして返す。
+*@param limit 取得する件数
+*@return メッセージを表すMessageDTOのTreeSet
+*/
 	public  TreeSet<MessageDTO> getLatest(int limit){
 		ResultSet resultset = null;
 		if(isValid()) {
@@ -104,7 +114,7 @@ public class MessageDAO {
        	}
     }
 
-/*
+/*汎用的なクエリを行うための関数。現在個別の関数の代替えとならないためコメントアウト
     private static <R> R executeQuery(Function<ResultSet,R> func,String SQL) {
     	if(isValid()) {
             try(
@@ -119,6 +129,12 @@ public class MessageDAO {
        	}
     }
     */
+/**
+*汎用的なUpdate文の煩雑で典型的な処理を隠ぺいして抽象化する関数。
+*@param c アップデートした件数を引数にとるコンシューマー。事後処理が必要な場合に利用する。
+*@param SQL SQL文本体。
+*@return アップデートに成功した件数。
+*/
     private static int executeUpdate(Consumer<Integer> c,String SQL) {
     	int i =-1;
     	if(isValid()) {
@@ -135,6 +151,11 @@ public class MessageDAO {
        	}
 		return i;
     }
+/**
+*メッセージをデータベースに記録する。SQLインジェクションを防ぐため汎用的なexecuteUpdateは使用できないため個別化。
+*@param m メッセージ
+*@return 記録に成功したかどうか
+*/
     public static boolean insertMessageDTO(MessageDTO m) {
     	if(isValid()) {
             try(
@@ -151,6 +172,10 @@ public class MessageDAO {
        	}
     	return false;
     }
+/**
+*データベースから指定したユーザー名が発言したメッセージのデータを全て削除する。
+*@param user 削除するユーザー名
+*/
     public void deleteMessage(String user) {
     	if(!isValid()) {
     		connection = getConnection();
@@ -163,6 +188,10 @@ public class MessageDAO {
          }
 
     }
+/**
+*データベースに登録されているメッセージ群を全て削除する。
+*
+*/
     public void deleteAllMessage() {
     	if(!isValid()) {
     		connection = getConnection();
@@ -170,10 +199,14 @@ public class MessageDAO {
     	try(Statement s = connection.createStatement();){
     		s.executeUpdate("DELETE from message;");
     	} catch (SQLException e) {
-			// TODO 自動生成された catch ブロック
 			e.printStackTrace();
 		}
     }
+/**
+*レコード群からメッセージを表すDTOオブジェクトのTreeSetへ変換して返す。
+*@param rs レコード群
+*@return 変換したMessageDTOのTreeSet
+*/
 	private static TreeSet<MessageDTO> toMessageDTOSet(ResultSet rs) {
 		TreeSet<MessageDTO> result = new TreeSet<MessageDTO>();
 		Stack<MessageDTO> stack = new Stack<>();
