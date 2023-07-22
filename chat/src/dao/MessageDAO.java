@@ -39,7 +39,7 @@ public class MessageDAO {
 */
     private  Connection getConnection() {
     	try {
-    		/* Plane Tomcat
+    		/* 生のJavaEEで実装する場合context.xmlのコメントアウトも外し、このコメントアウトも外す。
 			Context c =new InitialContext();
 			DataSource source=(DataSource)c.lookup("java:comp/env/jdbc/chat");
 			return source.getConnection();
