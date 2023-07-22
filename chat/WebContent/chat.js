@@ -1,15 +1,17 @@
 $(document).ready(function (){
 	if($("[name='chat']")!== null){
-
+//テキストエリアにフォーカスがあっている時にエンターが押されるとチャットを送信する。
 	$("textarea[name='text']").keyup(function(e){
 		if(e.keyCode==13){
 			chat();
 			return false;
 		}
 	});
+//3000ミリ秒おきにAjaxでメッセージを取得。
   var timeid =setInterval(getmessages,3000);
 	}
 });
+//テキストエリアのデータをサーバーに送信し、応答のメッセージデータをDOMで反映させた後、テキストエリアを空にする。
 function chat(){
    var data = $("textarea[name='text']").val();
    $.ajax({
@@ -64,6 +66,7 @@ function chat(){
    });
 
 }
+//サーバーからメッセージを取得し、DOMに反映させる。
 function getmessages(){
 	   $.ajax({
 		   type: 'post',
