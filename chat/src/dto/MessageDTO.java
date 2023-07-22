@@ -14,8 +14,19 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
+/**
+*名前、メッセージ、日付、IPをまとめたメッセージ一つを表すオブジェクト。
+*JSONとの相互変換規則を定めるために各JsonSerializer<MessageDTO>,JsonDeserializer<MessageDTO>, Serializable ,Comparable<MessageDTO> 
+*インターフェースを実装する。
+*/
 public class MessageDTO implements JsonSerializer<MessageDTO>,JsonDeserializer<MessageDTO>, Serializable ,Comparable<MessageDTO> {
+	/**
+ 	*引数なしコンストラクタ。セッターで後からフィールド値を決める場合のみ利用する。
+ 	*/
 	public MessageDTO() {}
+	/**
+ 	*各フィールドをインスタンス生成時に設定するためのコンストラクタ。
+	*/
 	public MessageDTO(String text, String name, LocalDateTime datetime, String IP) {
 		this.text=text;
 		this.name=name;
@@ -51,6 +62,12 @@ public class MessageDTO implements JsonSerializer<MessageDTO>,JsonDeserializer<M
 	public void setIP(String iP) {
 		IP = iP;
 	}
+	/**
+ 	*JSONへシリアライズするための規則を定義する。
+  	*@param dto シリアライズするオブジェクト
+   	*@param arg1 オーバーライドのためで利用していない。
+	*@param arg2 オーバーライドのためで利用していない。
+	*/
 	@Override
 	public JsonElement serialize(MessageDTO dto, Type arg1, JsonSerializationContext arg2) {
 		JsonObject result = new JsonObject();
@@ -61,6 +78,12 @@ public class MessageDTO implements JsonSerializer<MessageDTO>,JsonDeserializer<M
 		result.add("IP", new JsonPrimitive(dto.getIP()));
 		return result;
 	}
+	/**
+ 	*JSONからMessageDTOへデシリアライズするための規則を定義する。
+  	*@param element 変換するJSON
+   	*@param arg1 オーバーライドのためで利用していない。
+	*@param arg2 オーバーライドのためで利用していない。
+	*/
 	@Override
 	public MessageDTO deserialize(JsonElement element, Type arg1, JsonDeserializationContext arg2)
 			throws JsonParseException {
@@ -73,6 +96,9 @@ public class MessageDTO implements JsonSerializer<MessageDTO>,JsonDeserializer<M
 		LocalDateTime datetimeObj =formatter.parse(datetime, LocalDateTime::from);
 		return new MessageDTO(text,name,datetimeObj,IP);
 	}
+	/**
+	*比較は日付をキーにして行う。
+	*/
 	@Override
 	public int compareTo(MessageDTO o) {
 		return this.getDatetime().compareTo(o.getDatetime());
