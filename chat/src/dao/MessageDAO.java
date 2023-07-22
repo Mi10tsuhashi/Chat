@@ -15,11 +15,16 @@ import java.util.function.Consumer;
 import javax.servlet.http.HttpServlet;
 
 import dto.MessageDTO;
-
+/**
+*データベースとの直接のやりとりを隠蔽するクラス
+*/
 public class MessageDAO {
 	private static Connection connection;
 	private  HttpServlet servlet;
-
+/**
+*データベースとテーブルを利用する準備をするコンストラクタ
+*@param s エラー時のログをとるために利用するサーブレットインスタンス
+*/
     public   MessageDAO(HttpServlet s) {
     	if(!isValid()) {
     		servlet=s;
@@ -27,6 +32,11 @@ public class MessageDAO {
     		createTable();
     	}
     }
+/**
+*環境変数経由でデータベースに接続するための情報を取得し、コネクションを返す。
+*コメントアウト部分はHerokuを使わず、生のJavaEEで管理する時のもの。
+*@return データベースを表すConnectionオブジェクト
+*/
     private  Connection getConnection() {
     	try {
     		/* Plane Tomcat
@@ -55,6 +65,9 @@ public class MessageDAO {
 		}
 		return connection;
     }
+/**
+*
+*/
     public static boolean isValid() {
     	try {
 			return connection!=null && !connection.isClosed();
