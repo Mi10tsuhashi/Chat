@@ -13,14 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import beans.UserBean;
 
-
-
-
-
-
-
-
-
+/**
+*アプリケーションルートを表すサーブレット。top.jspに書くと煩雑に見えるロジック部分を分離したもの。
+*ログイン時（入室）の処理を行う。
+*/
 
 @WebServlet("/index.jsp")
 @WebListener
@@ -35,15 +31,26 @@ public class IndexServlet extends HttpServlet{
 
 
 
-
+	/**
+ 	*HTTP GETの場合は何もせずtop.jspへリダイレクトする。
+  	*@param request HTTPリクエスト
+   	*@param response HTTPレスポンス
+	*/
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.getRequestDispatcher("/top.jsp").forward(request, response);
 	}
 
-
+	/**
+	*空白パターンに一致しないユニークなユーザー名でない場合にセッションとログイン中のグループに
+ 	*ユーザーを追加する。
+	*エラーメッセージもセッションで管理し、実際の表示はtop.jspに任せる。
+  	*@param request HTTPリクエスト
+   	*@param response HTTPレスポンス
+	*/
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
         String name = request.getParameter("name");
+	//空白パターン
         String A = "\\u3000";
     	String B = "\\u00A0";
     	String C = "\\u0020";
